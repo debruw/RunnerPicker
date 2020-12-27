@@ -26,8 +26,6 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
-        m_animator = gameObject.GetComponent<Animator>();
-        m_rigidBody = gameObject.GetComponent<Rigidbody>();
         ragdollRigidbodies = metarig.GetComponentsInChildren<Rigidbody>();
         ragdollColliders = metarig.GetComponentsInChildren<Collider>();
         foreach (Rigidbody item in ragdollRigidbodies)
@@ -77,6 +75,12 @@ public class PlayerController : MonoBehaviour
                 ThrowCollectedObjs();
             }
         }
+        if(Input.GetKeyDown(KeyCode.Space) && m_isGrounded)
+        {
+            m_rigidBody.AddForce(Vector3.up * m_jumpForce, ForceMode.Impulse);
+            m_animator.SetTrigger("Jump");
+            ThrowCollectedObjs();
+        }
         m_animator.SetFloat("MoveSpeed", m_currentV);
     }
 
@@ -105,7 +109,7 @@ public class PlayerController : MonoBehaviour
                 other.transform.rotation = Quaternion.identity;
                 if (CollectedObjs.Count > 0)
                 {
-                    other.transform.position = new Vector3(CollectedObjs[CollectedObjs.Count - 1].transform.position.x, CollectedObjs[CollectedObjs.Count - 1].transform.position.y + (other.transform.localScale.y / 3), CollectedObjs[CollectedObjs.Count - 1].transform.position.z);
+                    other.transform.position = new Vector3(CollectedObjs[CollectedObjs.Count - 1].transform.position.x, CollectedObjs[CollectedObjs.Count - 1].transform.position.y + (other.transform.localScale.y / 2), CollectedObjs[CollectedObjs.Count - 1].transform.position.z);
                     cam.GetComponent<SmoothFollow>().targets.Add(other.transform);
                 }
                 else
@@ -145,6 +149,7 @@ public class PlayerController : MonoBehaviour
         metarig.SetActive(true);
     }
 
+    public Vector3 ThrowForce;
     public void ThrowCollectedObjs()
     {
         Debug.Log("Throw Objs");
@@ -152,9 +157,10 @@ public class PlayerController : MonoBehaviour
         {
             item.transform.parent = null;
             cam.GetComponent<SmoothFollow>().targets.Remove(item.transform);
+            item.GetComponent<Collectable>().isThrowed = true;
             item.GetComponent<Collider>().isTrigger = false;
             item.GetComponent<Rigidbody>().useGravity = true;
-            item.GetComponent<Rigidbody>().AddForce(new Vector3(0, 60, 85));
+            item.GetComponent<Rigidbody>().AddForce(ThrowForce, ForceMode.Impulse);
         }
         CollectedObjs.Clear();
     }
