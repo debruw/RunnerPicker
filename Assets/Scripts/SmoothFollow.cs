@@ -6,6 +6,23 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class SmoothFollow : MonoBehaviour
 {
+    private static SmoothFollow _instance;
+
+    public static SmoothFollow Instance { get { return _instance; } }
+
+
+    private void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
+
     public List<Transform> targets;
 
     public Vector3 offset;

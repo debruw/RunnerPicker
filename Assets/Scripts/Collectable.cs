@@ -6,11 +6,17 @@ public class Collectable : MonoBehaviour
 {
     public GameObject splash, shadow;
     public bool isThrowed;
-    GameObject createdShadow;
+    [HideInInspector]
+    public GameObject createdShadow;
+    Rigidbody rb;
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
 
     private void FixedUpdate()
     {
-        Debug.DrawRay(transform.position, new Vector3(0, -1, 0), Color.red);
         if (isThrowed)
         {
             // Bit shift the index of the layer (8) to get a bit mask
@@ -20,34 +26,62 @@ public class Collectable : MonoBehaviour
             // Does the ray intersect any objects excluding the player layer
             if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hit, 50f, layerMask))
             {
-                Debug.Log("Did Hit");
-                Debug.DrawRay(transform.position, new Vector3(0, -1, 0) * hit.distance, Color.red);
                 if (createdShadow == null)
                 {
                     createdShadow = Instantiate(shadow, hit.transform.position, shadow.transform.rotation);
                 }
                 else
-                {                    
-                    createdShadow.transform.position = new Vector3(hit.point.x, hit.point.y + 1, hit.point.z);
+                {
+                    createdShadow.transform.position = new Vector3(hit.point.x, hit.point.y + .1f, hit.point.z);
                 }
-            }
-            else
-            {
-                Debug.DrawRay(transform.position, new Vector3(0, -1, 0) * 50, Color.white);
-                Debug.Log("Did not Hit");
             }
         }
         if (transform.position.y < -3)
         {
+            if (SmoothFollow.Instance.targets.Contains(gameObject.transform))
+            {
+                SmoothFollow.Instance.targets.Remove(gameObject.transform); 
+            }
+            Destroy(createdShadow);
             Destroy(gameObject);
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    public void ActivateThrowProperties(Collider playerCollider)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        SmoothFollow.Instance.targets.Remove(transform);
+        transform.parent = null;
+        isThrowed = true;
+        StartCoroutine(WaitAndActivateCollision(playerCollider));
+    }
+
+    IEnumerator WaitAndActivateCollision(Collider pC)
+    {
+        yield return new WaitForSeconds(.5f);
+        Physics.IgnoreCollision(GetComponent<Collider>(), pC, false);
+    }
+
+    public void DeActivateThrowProperties()
+    {
+        rb.useGravity = false;
+        GetComponent<Collider>().isTrigger = true;
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        transform.rotation = Quaternion.identity;
+        isThrowed = false;
+        Destroy(createdShadow);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Ground"))
         {
-            Instantiate(splash, collision.transform.position, splash.transform.rotation);
+            Destroy(Instantiate(splash, new Vector3(transform.position.x, .6f, transform.position.z), splash.transform.rotation), 2f);
+            Destroy(createdShadow);
+            if (SmoothFollow.Instance.targets.Contains(gameObject.transform))
+            {
+                SmoothFollow.Instance.targets.Remove(gameObject.transform); 
+            }
             Destroy(gameObject);
         }
     }

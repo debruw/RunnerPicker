@@ -34,7 +34,10 @@ Material:
     m_Floats:
     - _RampSmooth: 0.1
     - _RampThreshold: 0.5
+    - _Shininess: 0.01
+    - _SpecSmooth: 0.05
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _HColor: {r: 0.68235296, g: 0.9960785, b: 0.15686275, a: 1}
     - _SColor: {r: 0.41176474, g: 0.8196079, b: 0.03137255, a: 1}
+    - _SpecColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}

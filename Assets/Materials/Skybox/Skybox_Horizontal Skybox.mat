@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: SkyboxPlus_Hemisphere
-  m_Shader: {fileID: 4800000, guid: b577cc7e2b66f4521979fd57ca0c8417, type: 3}
+  m_Name: Skybox_Horizontal Skybox
+  m_Shader: {fileID: 4800000, guid: cfc70497f9539a746871aff271cb79d6, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -20,8 +20,10 @@ Material:
     serializedVersion: 3
     m_TexEnvs: []
     m_Floats:
-    - _Exposure: 1
+    - _Exponent1: 1.5
+    - _Exponent2: 1
+    - _Intensity: 1
     m_Colors:
-    - _BottomColor: {r: 0.597202, g: 0.8631574, b: 0.98225087, a: 1}
-    - _MiddleColor: {r: 0.597202, g: 0.8631574, b: 0.98225087, a: 1}
-    - _TopColor: {r: 0, g: 0.4627451, b: 1, a: 1}
+    - _Color1: {r: 0, g: 0.6507373, b: 1, a: 1}
+    - _Color2: {r: 0.8632076, g: 0.9573443, b: 1, a: 1}
+    - _Color3: {r: 0.6367924, g: 0.8866442, b: 1, a: 1}
