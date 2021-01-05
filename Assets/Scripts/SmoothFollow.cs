@@ -34,6 +34,8 @@ public class SmoothFollow : MonoBehaviour
 
     private Vector3 velocity;
     private Camera cam;
+    public bool isOnFinish;
+    public Transform FinishView;
 
     private void Start()
     {
@@ -43,7 +45,14 @@ public class SmoothFollow : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (targets.Count == 0)
+        if (isOnFinish)
+        {
+            //Debug.Log("on finish!");
+            //targets.Clear();
+            //transform.position = FinishView.position;
+            return;
+        }
+        if (targets.Count == 0 || !GameManager.Instance.isGameStarted)
             return;
 
         Move();

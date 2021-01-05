@@ -10,20 +10,10 @@ public class Launcher : MonoBehaviour
 
     float h;
 
-    public bool debugPath;
-
     void Start()
     {
         rb.useGravity = false;
-        h = Random.Range(5f, 8f);
-    }
-
-    void Update()
-    {
-        if (debugPath)
-        {
-            //DrawPath();
-        }
+        h = Random.Range(8, 10);
     }
 
     public void Launch(Vector3 tr, float m_moveSpeed)
@@ -46,22 +36,6 @@ public class Launcher : MonoBehaviour
 
         return new LaunchData(velocityXZ + velocityY * -Mathf.Sign(Physics.gravity.y), time);
     }
-
-    //void DrawPath()
-    //{
-    //    LaunchData launchData = CalculateLaunchData();
-    //    Vector3 previousDrawPoint = rb.position;
-
-    //    int resolution = 30;
-    //    for (int i = 1; i <= resolution; i++)
-    //    {
-    //        float simulationTime = i / (float)resolution * launchData.timeToTarget;
-    //        Vector3 displacement = launchData.initialVelocity * simulationTime + Vector3.up * Physics.gravity.y * simulationTime * simulationTime / 2f;
-    //        Vector3 drawPoint = rb.position + displacement;
-    //        Debug.DrawLine(previousDrawPoint, drawPoint, Color.green);
-    //        previousDrawPoint = drawPoint;
-    //    }
-    //}
 
     struct LaunchData
     {

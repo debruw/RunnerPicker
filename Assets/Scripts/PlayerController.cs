@@ -43,6 +43,10 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (!GameManager.Instance.isGameStarted)
+        {
+            return;
+        }
         transform.position += transform.forward * m_moveSpeed * Time.deltaTime;
         if (Input.GetMouseButton(0))
         {
@@ -95,7 +99,8 @@ public class PlayerController : MonoBehaviour
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
             m_moveSpeed = 0;
-            m_animator.SetTrigger("Fall");
+            m_animator.SetTrigger("Fall");            
+            StartCoroutine(GameManager.Instance.WaitAndGameLose());
         }
         else if (collision.gameObject.CompareTag("Collectable"))
         {
@@ -122,6 +127,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public GameObject PickUpParticle;
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Collectable"))
@@ -129,6 +135,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Trigger : " + !CollectedObjs.Contains(other.gameObject));
             if (!CollectedObjs.Contains(other.gameObject))
             {
+                Destroy(Instantiate(PickUpParticle, other.transform.position, Quaternion.identity), 2f);
                 other.GetComponent<Collectable>().DeActivateThrowProperties();
                 other.transform.rotation = Quaternion.identity;
                 if (CollectedObjs.Count > 0)
@@ -145,6 +152,13 @@ public class PlayerController : MonoBehaviour
                 other.transform.parent = CarryObject;
                 other.transform.localPosition = new Vector3(0, other.transform.localPosition.y, 0);
             }
+        }
+        else if (other.CompareTag("FinishLine"))
+        {
+            m_moveSpeed = 0;
+            GetComponent<Animator>().SetTrigger("Idle");
+            SmoothFollow.Instance.isOnFinish = true;
+            GameManager.Instance.TapToLoadButton.SetActive(true);
         }
     }
 
@@ -187,5 +201,13 @@ public class PlayerController : MonoBehaviour
             }
         }
         CollectedObjs.Clear();
+    }
+
+    public void LoadObjs()
+    {
+        foreach (GameObject item in CollectedObjs)
+        {
+            item.SetActive(false);
+        }
     }
 }

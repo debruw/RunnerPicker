@@ -7,6 +7,8 @@ TagManager:
   - Obstacle
   - Collectable
   - Ground
+  - FinishLine
+  - Knife
   layers:
   - Default
   - TransparentFX

@@ -17,6 +17,10 @@ public class Collectable : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if(!GameManager.Instance.isGameStarted)
+        {
+            return;
+        }
         if (isThrowed)
         {
             // Bit shift the index of the layer (8) to get a bit mask
