@@ -40,7 +40,7 @@ public class PlayerController : MonoBehaviour
         m_rigidBody.useGravity = true;
         m_rigidBody.isKinematic = false;
     }
-
+    Touch touch;
     void Update()
     {
         if (!GameManager.Instance.isGameStarted)
@@ -48,6 +48,8 @@ public class PlayerController : MonoBehaviour
             return;
         }
         transform.position += transform.forward * m_moveSpeed * Time.deltaTime;
+
+#if UNITY_EDITOR
         if (Input.GetMouseButton(0))
         {
             translation = new Vector3(Input.GetAxis("Mouse X"), 0, 0) * Time.deltaTime * Xspeed;
@@ -55,36 +57,47 @@ public class PlayerController : MonoBehaviour
             transform.Translate(translation, Space.World);
             transform.position = new Vector3(Mathf.Clamp(transform.position.x, -3.5f, 3.5f), transform.position.y, transform.position.z);
         }
-        else if (Input.GetMouseButtonDown(0))
-        {
-            //save began touch 2d point
-            firstPressPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-        }
-        else if (m_isGrounded && Input.GetMouseButtonUp(0))
-        {
-            //save ended touch 2d point
-            secondPressPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-
-            //create vector from the two points
-            currentSwipe = new Vector2(secondPressPos.x - firstPressPos.x, secondPressPos.y - firstPressPos.y);
-
-            //normalize the 2d vector
-            currentSwipe.Normalize();
-
-            //swipe upwards
-            if (currentSwipe.y > 0 && currentSwipe.x > -0.5f && currentSwipe.x < 0.5f)
-            {
-                m_rigidBody.AddForce(Vector3.up * m_jumpForce, ForceMode.Impulse);
-                m_animator.SetTrigger("Jump");
-                ThrowCollectedObjs();
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.Space) && m_isGrounded)
+        else if (Input.GetKeyDown(KeyCode.Space) && m_isGrounded)
         {
             m_rigidBody.AddForce(Vector3.up * m_jumpForce, ForceMode.Impulse);
             m_animator.SetTrigger("Jump");
             ThrowCollectedObjs();
         }
+#elif UNITY_IOS || UNITY_ANDROID
+        if (Input.touchCount > 0)
+        {
+            touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Moved)
+            {
+                transform.position = new Vector3(Mathf.Clamp(transform.position.x + touch.deltaPosition.x * 0.01f, -4, 4), transform.position.y, transform.position.z);
+            }
+            else if (touch.phase == TouchPhase.Began)
+            {
+                //save began touch 2d point
+                firstPressPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+            }
+            else if (m_isGrounded && touch.phase == TouchPhase.Ended)
+            {
+                //save ended touch 2d point
+                secondPressPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+
+                //create vector from the two points
+                currentSwipe = new Vector2(secondPressPos.x - firstPressPos.x, secondPressPos.y - firstPressPos.y);
+
+                //normalize the 2d vector
+                currentSwipe.Normalize();
+
+                //swipe upwards
+                if (currentSwipe.y > 0 && currentSwipe.x > -0.5f && currentSwipe.x < 0.5f)
+                {
+                    m_rigidBody.AddForce(Vector3.up * m_jumpForce, ForceMode.Impulse);
+                    m_animator.SetTrigger("Jump");
+                    ThrowCollectedObjs();
+                }
+            }
+        }
+#endif
+
         m_animator.SetFloat("MoveSpeed", m_currentV);
     }
 
