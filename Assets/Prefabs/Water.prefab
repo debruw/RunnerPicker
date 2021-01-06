@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2629863833066282621}
   - component: {fileID: 2629863833066282618}
   - component: {fileID: 2629863833066282619}
-  - component: {fileID: 2629863833066282617}
+  - component: {fileID: 5867058324035147600}
   m_Layer: 0
   m_Name: Water
   m_TagString: Untagged
@@ -40,7 +40,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2629863833066282566}
-  m_Mesh: {fileID: 4300000, guid: e384da6d7b3803240a287d34bd584a68, type: 2}
+  m_Mesh: {fileID: 4300000, guid: ebfb4988eb16add4784122504f75fe2f, type: 2}
 --- !u!23 &2629863833066282619
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -80,7 +80,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &2629863833066282617
+--- !u!114 &5867058324035147600
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -89,11 +89,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2629863833066282566}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 224a1630199134ee8803117f4ce4fdc0, type: 3}
+  m_Script: {fileID: 11500000, guid: 5c6a6df342b52d24092cf6bbb590c535, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waveFrequency: 0.25
-  waveHeight: 0.48
-  waveLength: 0.71
-  edgeBlend: 1
-  forceFlatShading: 1
+  waveHeight: 2
+  waveFrequency: 0.5
+  waveLength: 0.75
+  waveOriginPosition: {x: 0, y: 0, z: 0}

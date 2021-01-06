@@ -99,7 +99,7 @@ public class PlayerController : MonoBehaviour
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
             m_moveSpeed = 0;
-            m_animator.SetTrigger("Fall");            
+            m_animator.SetTrigger("Fall");
             StartCoroutine(GameManager.Instance.WaitAndGameLose());
         }
         else if (collision.gameObject.CompareTag("Collectable"))
@@ -153,9 +153,16 @@ public class PlayerController : MonoBehaviour
                 other.transform.localPosition = new Vector3(0, other.transform.localPosition.y, 0);
             }
         }
+        else if (other.CompareTag("Obstacle"))
+        {
+            m_moveSpeed = 0;
+            m_animator.SetTrigger("Fall");
+            StartCoroutine(GameManager.Instance.WaitAndGameLose());
+        }
         else if (other.CompareTag("FinishLine"))
         {
             m_moveSpeed = 0;
+            GameManager.Instance.isGameStarted = false;
             GetComponent<Animator>().SetTrigger("Idle");
             SmoothFollow.Instance.isOnFinish = true;
             GameManager.Instance.TapToLoadButton.SetActive(true);

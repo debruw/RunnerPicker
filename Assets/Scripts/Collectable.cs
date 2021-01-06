@@ -46,6 +46,10 @@ public class Collectable : MonoBehaviour
             {
                 SmoothFollow.Instance.targets.Remove(gameObject.transform); 
             }
+            if (GameManager.Instance.Player.GetComponent<PlayerController>().CollectedObjs.Contains(gameObject))
+            {
+                GameManager.Instance.Player.GetComponent<PlayerController>().CollectedObjs.Remove(gameObject);
+            }
             Destroy(createdShadow);
             Destroy(gameObject);
         }
@@ -80,6 +84,14 @@ public class Collectable : MonoBehaviour
     {
         if (other.CompareTag("Ground"))
         {
+            if (SmoothFollow.Instance.targets.Contains(gameObject.transform))
+            {
+                SmoothFollow.Instance.targets.Remove(gameObject.transform);
+            }
+            if (GameManager.Instance.Player.GetComponent<PlayerController>().CollectedObjs.Contains(gameObject))
+            {
+                GameManager.Instance.Player.GetComponent<PlayerController>().CollectedObjs.Remove(gameObject); 
+            }
             Destroy(Instantiate(splash, new Vector3(transform.position.x, .6f, transform.position.z), splash.transform.rotation), 2f);
             Destroy(createdShadow);
             if (SmoothFollow.Instance.targets.Contains(gameObject.transform))

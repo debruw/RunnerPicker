@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get { return _instance; } }
 
     public int currentLevel = 1;
-    int MaxLevelNumber = 20;
+    int MaxLevelNumber = 3;
     public bool isGameStarted;
     public GameObject Player;
     public GameObject Crates;
