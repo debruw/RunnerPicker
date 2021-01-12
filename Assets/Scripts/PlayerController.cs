@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class PlayerController : MonoBehaviour
 {
@@ -23,6 +24,7 @@ public class PlayerController : MonoBehaviour
     public Camera cam;
 
     Vector2 firstPressPos, secondPressPos, currentSwipe;
+    Touch touch;
 
     void Awake()
     {
@@ -40,7 +42,8 @@ public class PlayerController : MonoBehaviour
         m_rigidBody.useGravity = true;
         m_rigidBody.isKinematic = false;
     }
-    Touch touch;
+
+    Vector3 tempFingerPos;
     void Update()
     {
         if (!GameManager.Instance.isGameStarted)
@@ -49,19 +52,50 @@ public class PlayerController : MonoBehaviour
         }
         transform.position += transform.forward * m_moveSpeed * Time.deltaTime;
 
+        if (GameManager.Instance.isInSlowMotion)
+        {
+            if (Input.GetMouseButtonUp(0))
+            {
+                StartCoroutine(ScaleTime(.05f, 1, 1));
+                GameManager.Instance.isInSlowMotion = false;
+                lineRenderer.positionCount = 1;
+            }
+            else if (Input.GetMouseButtonDown(0))
+            {
+                tempFingerPos = GetWorldPositionOnPlane(Input.mousePosition, 10);
+                lineRenderer.SetPosition(0, tempFingerPos);
+                fingerPositions.Add(tempFingerPos);
+            }
+            else if (Input.GetMouseButton(0))
+            {
+                tempFingerPos = GetWorldPositionOnPlane(Input.mousePosition, 10);
+                if (Vector3.Distance(tempFingerPos, fingerPositions[fingerPositions.Count - 1]) > .1f)
+                {
+                    UpdateLine(tempFingerPos);
+                }
+                fingerPositions.Add(tempFingerPos);
+            }
+            return;
+        }
+
 #if UNITY_EDITOR
         if (Input.GetMouseButton(0))
         {
             translation = new Vector3(Input.GetAxis("Mouse X"), 0, 0) * Time.deltaTime * Xspeed;
 
             transform.Translate(translation, Space.World);
-            transform.position = new Vector3(Mathf.Clamp(transform.position.x, -3.5f, 3.5f), transform.position.y, transform.position.z);
+            transform.position = new Vector3(Mathf.Clamp(transform.position.x, -3.25f, 3.25f), transform.position.y, transform.position.z);
         }
         else if (Input.GetKeyDown(KeyCode.Space) && m_isGrounded)
         {
             m_rigidBody.AddForce(Vector3.up * m_jumpForce, ForceMode.Impulse);
             m_animator.SetTrigger("Jump");
-            ThrowCollectedObjs();
+            if (CollectedObjs.Count > 0)
+            {
+                ThrowCollectedObjs();
+                StartCoroutine(ScaleTime(1, .05f, 1));
+                GameManager.Instance.isInSlowMotion = true;
+            }
         }
 #elif UNITY_IOS || UNITY_ANDROID
         if (Input.touchCount > 0)
@@ -92,13 +126,53 @@ public class PlayerController : MonoBehaviour
                 {
                     m_rigidBody.AddForce(Vector3.up * m_jumpForce, ForceMode.Impulse);
                     m_animator.SetTrigger("Jump");
-                    ThrowCollectedObjs();
+                    if (CollectedObjs.Count > 0)
+                    {
+                        ThrowCollectedObjs();
+                        StartCoroutine(ScaleTime(1, .05f, 1));
+                        GameManager.Instance.isInSlowMotion = true;
+                    }
                 }
             }
         }
 #endif
 
-        m_animator.SetFloat("MoveSpeed", m_currentV);
+    }
+
+    IEnumerator ScaleTime(float start, float end, float time)
+    {
+        float lastTime = Time.realtimeSinceStartup;
+        float timer = 0.0f;
+
+        while (timer < time)
+        {
+            Time.timeScale = Mathf.Lerp(start, end, timer / time);
+            timer += (Time.realtimeSinceStartup - lastTime);
+            lastTime = Time.realtimeSinceStartup;
+            yield return null;
+        }
+
+        Time.timeScale = end;
+    }
+
+    public Vector3 GetWorldPositionOnPlane(Vector3 screenPosition, float z)
+    {
+        // Bit shift the index of the layer (9) to get a bit mask
+        int layerMask = 1 << 9;
+
+        // This would cast rays only against colliders in layer 9
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(screenPosition);
+
+        // Does the ray intersect any objects excluding the player layer
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
+        {
+            if (hit.collider.CompareTag("Plane"))
+            {
+                return hit.point;
+            }
+        }
+        return Vector3.zero;
     }
 
     public Transform CarryObject;
@@ -115,29 +189,6 @@ public class PlayerController : MonoBehaviour
             m_animator.SetTrigger("Fall");
             StartCoroutine(GameManager.Instance.WaitAndGameLose());
         }
-        else if (collision.gameObject.CompareTag("Collectable"))
-        {
-            if (collision.gameObject.GetComponent<Collectable>().isThrowed)
-            {
-                collision.gameObject.GetComponent<Collectable>().DeActivateThrowProperties();
-                if (CollectedObjs.Count > 0)
-                {
-                    collision.gameObject.transform.position = new Vector3(CollectedObjs[CollectedObjs.Count - 1].transform.position.x, CollectedObjs[CollectedObjs.Count - 1].transform.position.y + (collision.gameObject.transform.localScale.y / 2), CollectedObjs[CollectedObjs.Count - 1].transform.position.z);
-                }
-                else
-                {
-                    collision.gameObject.transform.position = CarryObject.transform.position;
-                }
-                if (CollectedObjs.Count < 6)
-                {
-                    cam.GetComponent<SmoothFollow>().targets.Add(collision.gameObject.transform);
-                }
-                CollectableCount++;
-                CollectedObjs.Add(collision.gameObject.gameObject);
-                collision.gameObject.transform.parent = CarryObject;
-                collision.gameObject.transform.localPosition = new Vector3(0, collision.gameObject.transform.localPosition.y, 0);
-            }
-        }
     }
 
     public GameObject PickUpParticle;
@@ -145,26 +196,7 @@ public class PlayerController : MonoBehaviour
     {
         if (other.CompareTag("Collectable"))
         {
-            Debug.Log("Trigger : " + !CollectedObjs.Contains(other.gameObject));
-            if (!CollectedObjs.Contains(other.gameObject))
-            {
-                Destroy(Instantiate(PickUpParticle, other.transform.position, Quaternion.identity), 2f);
-                other.GetComponent<Collectable>().DeActivateThrowProperties();
-                other.transform.rotation = Quaternion.identity;
-                if (CollectedObjs.Count > 0)
-                {
-                    other.transform.position = new Vector3(CollectedObjs[CollectedObjs.Count - 1].transform.position.x, CollectedObjs[CollectedObjs.Count - 1].transform.position.y + (other.transform.localScale.y / 2), CollectedObjs[CollectedObjs.Count - 1].transform.position.z);
-                }
-                else
-                {
-                    other.transform.position = CarryObject.transform.position;
-                }
-                cam.GetComponent<SmoothFollow>().targets.Add(other.transform);
-                CollectableCount++;
-                CollectedObjs.Add(other.gameObject);
-                other.transform.parent = CarryObject;
-                other.transform.localPosition = new Vector3(0, other.transform.localPosition.y, 0);
-            }
+            Collect2(other.gameObject);
         }
         else if (other.CompareTag("Obstacle"))
         {
@@ -187,6 +219,60 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             m_isGrounded = false;
+        }
+    }
+
+    public void Collect(GameObject collectable)
+    {
+        if (!CollectedObjs.Contains(collectable))
+        {
+            Destroy(Instantiate(PickUpParticle, collectable.transform.position, Quaternion.identity), 2f);
+            collectable.GetComponent<Collectable>().DeActivateThrowProperties();
+            if (CollectedObjs.Count > 0)
+            {
+                collectable.transform.position = new Vector3(CollectedObjs[CollectedObjs.Count - 1].transform.position.x, CollectedObjs[CollectedObjs.Count - 1].transform.position.y + (collectable.transform.localScale.y / 2), CollectedObjs[CollectedObjs.Count - 1].transform.position.z);
+            }
+            else
+            {
+                collectable.transform.position = CarryObject.transform.position;
+            }
+            cam.GetComponent<SmoothFollow>().targets.Add(collectable.transform);
+            CollectableCount++;
+            CollectedObjs.Add(collectable.gameObject);
+            collectable.transform.parent = CarryObject;
+            collectable.transform.localPosition = new Vector3(0, collectable.transform.localPosition.y, 0);
+            collectable.transform.localRotation = Quaternion.identity;
+        }
+    }
+
+    public GameObject catchAnimationUI;
+    public void Collect2(GameObject collectable)
+    {
+        if (!CollectedObjs.Contains(collectable))
+        {
+            Destroy(Instantiate(PickUpParticle, collectable.transform.position, Quaternion.identity), 2f);
+            collectable.GetComponent<Collectable>().DeActivateThrowProperties();
+            collectable.transform.parent = CarryObject;
+
+            if (GameManager.Instance.isInSlowMotion)
+            {
+                Instantiate(catchAnimationUI, cam.WorldToScreenPoint(collectable.transform.position), Quaternion.identity, GameManager.Instance.canvas);
+            }
+
+            if (CollectedObjs.Count > 0)
+            {
+                collectable.transform.localPosition = new Vector3(CollectedObjs[CollectedObjs.Count - 1].transform.localPosition.x, CollectedObjs[CollectedObjs.Count - 1].transform.localPosition.y + (collectable.transform.localScale.y / 2), CollectedObjs[CollectedObjs.Count - 1].transform.localPosition.z);
+            }
+            else
+            {
+                collectable.transform.localPosition = Vector3.zero;
+            }
+            cam.GetComponent<SmoothFollow>().targets.Add(collectable.transform);
+            CollectableCount++;
+            CollectedObjs.Add(collectable.gameObject);
+
+            collectable.transform.localPosition = new Vector3(0, collectable.transform.localPosition.y, 0);
+            collectable.transform.localRotation = Quaternion.identity;
         }
     }
 
@@ -229,5 +315,13 @@ public class PlayerController : MonoBehaviour
         {
             item.SetActive(false);
         }
+    }
+
+    public LineRenderer lineRenderer;
+    public List<Vector3> fingerPositions;
+    public void UpdateLine(Vector3 newFingerPos)
+    {
+        lineRenderer.positionCount++;
+        lineRenderer.SetPosition(lineRenderer.positionCount - 1, newFingerPos);
     }
 }

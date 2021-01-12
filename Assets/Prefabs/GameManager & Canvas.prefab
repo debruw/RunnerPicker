@@ -1664,8 +1664,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentLevel: 1
   isGameStarted: 0
+  isInSlowMotion: 0
   Player: {fileID: 0}
   Crates: {fileID: 874122025974582248}
+  canvas: {fileID: 3901069271176479710}
   WinPanel: {fileID: 3901069270186890719}
   LosePanel: {fileID: 3901069270239642417}
   InGamePanel: {fileID: 3901069269695841628}

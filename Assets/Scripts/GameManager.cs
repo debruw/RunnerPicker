@@ -13,11 +13,12 @@ public class GameManager : MonoBehaviour
 
     public int currentLevel = 1;
     int MaxLevelNumber = 3;
-    public bool isGameStarted;
-    public GameObject Player;
+    public bool isGameStarted, isInSlowMotion;
+    public PlayerController Player;
     public GameObject Crates;
 
     #region UI Elements
+    public Transform canvas;
     public GameObject WinPanel, LosePanel, InGamePanel;
     public Button VibrationButton, TapToStartButton;
     public Sprite on, off;

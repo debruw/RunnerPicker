@@ -1898,11 +1898,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b5a34e81a3bab046822ef84cc424407, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_moveSpeed: 15
-  m_jumpForce: 8
+  m_moveSpeed: 12
+  m_jumpForce: 7
   m_animator: {fileID: 9080247616897203427}
   m_rigidBody: {fileID: 5622908061047592958}
-  Xspeed: 15
+  Xspeed: 10
   CollectedObjs: []
   metarig: {fileID: 2449171728213172191}
   ragdollRigidbodies: []
@@ -1910,7 +1910,13 @@ MonoBehaviour:
   cam: {fileID: 0}
   CarryObject: {fileID: 0}
   CollectableCount: 0
-  ThrowForce: {x: 0, y: 8, z: 7.5}
+  PickUpParticle: {fileID: 7467451613774091826, guid: c27ced02e5d2e464ca765f65f0a09e54,
+    type: 3}
+  catchAnimationUI: {fileID: 8523276964590956594, guid: 5691c29f563590f4ea5c3ec1bd3f76f0,
+    type: 3}
+  ThrowForce: {x: 0, y: 9.81, z: 16.3}
+  lineRenderer: {fileID: 0}
+  fingerPositions: []
 --- !u!54 &5622908061047592958
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1938,8 +1944,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.6445883, y: 1.2129273, z: 0.3624618}
-  m_Center: {x: -0.010208279, y: 0.60098004, z: 0.015159726}
+  m_Size: {x: 0.45650488, y: 0.6997843, z: 0.47068644}
+  m_Center: {x: 0.009298176, y: 0.3444085, z: 0.07552457}
 --- !u!95 &9080247616897203427
 Animator:
   serializedVersion: 3

@@ -46,9 +46,9 @@ public class Collectable : MonoBehaviour
             {
                 SmoothFollow.Instance.targets.Remove(gameObject.transform); 
             }
-            if (GameManager.Instance.Player.GetComponent<PlayerController>().CollectedObjs.Contains(gameObject))
+            if (GameManager.Instance.Player.CollectedObjs.Contains(gameObject))
             {
-                GameManager.Instance.Player.GetComponent<PlayerController>().CollectedObjs.Remove(gameObject);
+                GameManager.Instance.Player.CollectedObjs.Remove(gameObject);
             }
             Destroy(createdShadow);
             Destroy(gameObject);
@@ -60,6 +60,7 @@ public class Collectable : MonoBehaviour
         SmoothFollow.Instance.targets.Remove(transform);
         transform.parent = null;
         isThrowed = true;
+        GetComponent<Rigidbody>().isKinematic = false;
         StartCoroutine(WaitAndActivateCollision(playerCollider));
     }
 
@@ -73,6 +74,7 @@ public class Collectable : MonoBehaviour
     {
         rb.useGravity = false;
         GetComponent<Collider>().isTrigger = true;
+        GetComponent<Rigidbody>().isKinematic = true;
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         transform.rotation = Quaternion.identity;
@@ -88,9 +90,9 @@ public class Collectable : MonoBehaviour
             {
                 SmoothFollow.Instance.targets.Remove(gameObject.transform);
             }
-            if (GameManager.Instance.Player.GetComponent<PlayerController>().CollectedObjs.Contains(gameObject))
+            if (GameManager.Instance.Player.CollectedObjs.Contains(gameObject))
             {
-                GameManager.Instance.Player.GetComponent<PlayerController>().CollectedObjs.Remove(gameObject); 
+                GameManager.Instance.Player.CollectedObjs.Remove(gameObject); 
             }
             Destroy(Instantiate(splash, new Vector3(transform.position.x, .6f, transform.position.z), splash.transform.rotation), 2f);
             Destroy(createdShadow);
@@ -99,6 +101,14 @@ public class Collectable : MonoBehaviour
                 SmoothFollow.Instance.targets.Remove(gameObject.transform); 
             }
             Destroy(gameObject);
+        }
+    }
+
+    private void OnMouseEnter()
+    {
+        if (GameManager.Instance.isInSlowMotion)
+        {
+            GameManager.Instance.Player.Collect2(gameObject);
         }
     }
 }
