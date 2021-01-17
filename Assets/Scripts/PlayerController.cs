@@ -205,6 +205,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
+            GameManager.Instance.isGameStarted = false;
             m_moveSpeed = 0;
             m_animator.SetTrigger("Fall");
             StartCoroutine(GameManager.Instance.WaitAndGameLose());
@@ -220,9 +221,9 @@ public class PlayerController : MonoBehaviour
         }
         else if (other.CompareTag("Obstacle"))
         {
+            GameManager.Instance.isGameStarted = false;
             m_moveSpeed = 0;
             m_animator.SetTrigger("Fall");
-            GameManager.Instance.isGameStarted = false;
             StartCoroutine(GameManager.Instance.WaitAndGameLose());
         }
         else if (other.CompareTag("FinishLine"))
@@ -271,7 +272,7 @@ public class PlayerController : MonoBehaviour
             collectable.GetComponent<Collectable>().DeActivateThrowProperties();
             collectable.transform.parent = CarryObject;
 
-            if (GameManager.Instance.isInSlowMotion)
+            if (waitTime == 1)
             {
                 Instantiate(catchAnimationUI, cam.WorldToScreenPoint(collectable.transform.position), Quaternion.identity, GameManager.Instance.canvas);
             }
@@ -325,6 +326,20 @@ public class PlayerController : MonoBehaviour
                 Physics.IgnoreCollision(CollectedObjs[i].GetComponent<Collider>(), GetComponent<Collider>(), true);
                 CollectedObjs[i].GetComponent<Collectable>().ActivateThrowProperties(GetComponent<Collider>());
                 CollectedObjs[i].GetComponent<Launcher>().Launch(new Vector3(transform.position.x + (Random.Range(-3f, 3f)), transform.position.y, transform.position.z), m_moveSpeed);
+            }
+        }
+        CollectedObjs.Clear();
+    }
+
+    public void ThrowCollectedObjs2()
+    {
+        for (int i = CollectedObjs.Count - 1; i >= 0; i--)
+        {
+            if (CollectedObjs[i] != null)
+            {
+                Physics.IgnoreCollision(CollectedObjs[i].GetComponent<Collider>(), GetComponent<Collider>(), true);
+                CollectedObjs[i].GetComponent<Collectable>().ActivateThrowProperties(GetComponent<Collider>());
+                CollectedObjs[i].GetComponent<Launcher>().Launch(new Vector3(transform.position.x + (Random.Range(-3f, 3f)), transform.position.y, transform.position.z + 5), m_moveSpeed);
             }
         }
         CollectedObjs.Clear();
