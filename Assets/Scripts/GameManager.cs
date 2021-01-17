@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get { return _instance; } }
 
     public int currentLevel = 1;
-    int MaxLevelNumber = 3;
+    int MaxLevelNumber = 10;
     public bool isGameStarted, isInSlowMotion;
     public PlayerController Player;
     public GameObject Crates;
@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour
     public Sprite on, off;
     public Text LevelText;
     public GameObject TapToLoadButton;
+    public GameObject Tutorial1Canvas;
     #endregion
 
     private void Awake()
@@ -131,27 +132,16 @@ public class GameManager : MonoBehaviour
     {
         Player.GetComponent<Animator>().SetTrigger("Start");
         isGameStarted = true;
-
-        //switch (currentLevel)
-        //{
-        //    case 1:
-        //        Tutorial1.SetActive(true);
-        //        break;
-        //    case 2:
-        //        Tutorial2.SetActive(true);
-        //        break;
-        //    case 3:
-        //        Tutorial3.SetActive(true);
-        //        break;
-        //    default:
-        //        break;
-        //}
+        if (GameManager.Instance.currentLevel == 1)
+        {
+            Tutorial1Canvas.SetActive(true);
+        }
     }
     public GameObject Ship;
     public Transform ShipTarget;
     public void TapToLoadButtonClick()
     {
-        Player.GetComponent<PlayerController>().LoadObjs();
+        Player.GetComponent<PlayerController>().LoadObjsWithTime();
         Crates.SetActive(true);
 
         StartCoroutine(WaitAndGameWin());

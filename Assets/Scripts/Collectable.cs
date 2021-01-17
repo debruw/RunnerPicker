@@ -108,7 +108,7 @@ public class Collectable : MonoBehaviour
     {
         if (GameManager.Instance.isInSlowMotion)
         {
-            GameManager.Instance.Player.Collect2(gameObject);
+            GameManager.Instance.Player.Collect(gameObject);
         }
     }
 }

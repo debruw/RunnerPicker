@@ -10,6 +10,8 @@ TagManager:
   - FinishLine
   - Knife
   - Plane
+  - NoJumpZone
+  - JumpTrigger
   layers:
   - Default
   - TransparentFX

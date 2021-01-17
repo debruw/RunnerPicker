@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1674617070358335195}
   - component: {fileID: 2551888910452480723}
   m_Layer: 0
-  m_Name: AppleShadow
+  m_Name: TomatoShadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -71,7 +71,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 568009fa3c09ad44b8b14a9abc07c597, type: 3}
-  m_Color: {r: 0.4433962, g: 0.4433962, b: 0.4433962, a: 1}
+  m_Color: {r: 0.039215688, g: 0.054901965, b: 0.09411766, a: 0.7490196}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

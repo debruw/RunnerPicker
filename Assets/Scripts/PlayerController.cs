@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
 
     private float m_currentV = 0;
 
-    private bool m_isGrounded;
+    public bool m_isGrounded, isInNoJumpZone;
     private Vector3 translation;
     public float Xspeed = 25f;
 
@@ -25,6 +25,8 @@ public class PlayerController : MonoBehaviour
 
     Vector2 firstPressPos, secondPressPos, currentSwipe;
     Touch touch;
+
+    public GameObject JumpTutorialCanvas, CollectTutorial;
 
     void Awake()
     {
@@ -56,19 +58,23 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetMouseButtonUp(0))
             {
+                if (GameManager.Instance.currentLevel == 1)
+                {
+                    CollectTutorial.SetActive(false);
+                }
                 StartCoroutine(ScaleTime(.05f, 1, 1));
                 GameManager.Instance.isInSlowMotion = false;
                 lineRenderer.positionCount = 1;
             }
             else if (Input.GetMouseButtonDown(0))
             {
-                tempFingerPos = GetWorldPositionOnPlane(Input.mousePosition, 10);
+                tempFingerPos = GetWorldPositionOnPlane();
                 lineRenderer.SetPosition(0, tempFingerPos);
                 fingerPositions.Add(tempFingerPos);
             }
             else if (Input.GetMouseButton(0))
             {
-                tempFingerPos = GetWorldPositionOnPlane(Input.mousePosition, 10);
+                tempFingerPos = GetWorldPositionOnPlane();
                 if (Vector3.Distance(tempFingerPos, fingerPositions[fingerPositions.Count - 1]) > .1f)
                 {
                     UpdateLine(tempFingerPos);
@@ -82,14 +88,22 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButton(0))
         {
             translation = new Vector3(Input.GetAxis("Mouse X"), 0, 0) * Time.deltaTime * Xspeed;
-
+            if (GameManager.Instance.currentLevel == 1)
+            {
+                GameManager.Instance.Tutorial1Canvas.SetActive(false);
+            }
             transform.Translate(translation, Space.World);
             transform.position = new Vector3(Mathf.Clamp(transform.position.x, -3.25f, 3.25f), transform.position.y, transform.position.z);
         }
-        else if (Input.GetKeyDown(KeyCode.Space) && m_isGrounded)
+        else if (Input.GetKeyDown(KeyCode.Space) && m_isGrounded && !isInNoJumpZone)
         {
+            Debug.Log("jump");
             m_rigidBody.AddForce(Vector3.up * m_jumpForce, ForceMode.Impulse);
             m_animator.SetTrigger("Jump");
+            if (GameManager.Instance.currentLevel == 1)
+            {
+                JumpTutorialCanvas.SetActive(false);
+            }
             if (CollectedObjs.Count > 0)
             {
                 ThrowCollectedObjs();
@@ -109,8 +123,9 @@ public class PlayerController : MonoBehaviour
             {
                 //save began touch 2d point
                 firstPressPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+                GameManager.Instance.Tutorial1Canvas.SetActive(false);
             }
-            else if (m_isGrounded && touch.phase == TouchPhase.Ended)
+            else if (m_isGrounded && touch.phase == TouchPhase.Ended && !isInNoJumpZone)
             {
                 //save ended touch 2d point
                 secondPressPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
@@ -124,12 +139,14 @@ public class PlayerController : MonoBehaviour
                 //swipe upwards
                 if (currentSwipe.y > 0 && currentSwipe.x > -0.5f && currentSwipe.x < 0.5f)
                 {
+                    Debug.Log("jump");
                     m_rigidBody.AddForce(Vector3.up * m_jumpForce, ForceMode.Impulse);
                     m_animator.SetTrigger("Jump");
+                    JumpTutorialCanvas.SetActive(false);
                     if (CollectedObjs.Count > 0)
                     {
-                        ThrowCollectedObjs();
-                        StartCoroutine(ScaleTime(1, .05f, 1));
+                        ThrowCollectedObjs();                        
+                        StartCoroutine(ScaleTime(1, .05f, 1));                        
                         GameManager.Instance.isInSlowMotion = true;
                     }
                 }
@@ -151,18 +168,21 @@ public class PlayerController : MonoBehaviour
             lastTime = Time.realtimeSinceStartup;
             yield return null;
         }
-
+        if (start == 1 && GameManager.Instance.currentLevel == 1)
+        {
+            CollectTutorial.SetActive(true);
+        }
         Time.timeScale = end;
     }
 
-    public Vector3 GetWorldPositionOnPlane(Vector3 screenPosition, float z)
+    public Vector3 GetWorldPositionOnPlane()
     {
         // Bit shift the index of the layer (9) to get a bit mask
         int layerMask = 1 << 9;
 
         // This would cast rays only against colliders in layer 9
         RaycastHit hit;
-        Ray ray = Camera.main.ScreenPointToRay(screenPosition);
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         // Does the ray intersect any objects excluding the player layer
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
@@ -202,6 +222,7 @@ public class PlayerController : MonoBehaviour
         {
             m_moveSpeed = 0;
             m_animator.SetTrigger("Fall");
+            GameManager.Instance.isGameStarted = false;
             StartCoroutine(GameManager.Instance.WaitAndGameLose());
         }
         else if (other.CompareTag("FinishLine"))
@@ -211,6 +232,14 @@ public class PlayerController : MonoBehaviour
             GetComponent<Animator>().SetTrigger("Idle");
             SmoothFollow.Instance.isOnFinish = true;
             GameManager.Instance.TapToLoadButton.SetActive(true);
+        }
+        else if (other.CompareTag("NoJumpZone"))
+        {
+            isInNoJumpZone = true;
+        }
+        else if (other.CompareTag("JumpTrigger") && GameManager.Instance.currentLevel == 1)
+        {
+            JumpTutorialCanvas.SetActive(true);
         }
     }
 
@@ -222,32 +251,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public GameObject catchAnimationUI;
     public void Collect(GameObject collectable)
     {
-        if (!CollectedObjs.Contains(collectable))
-        {
-            Destroy(Instantiate(PickUpParticle, collectable.transform.position, Quaternion.identity), 2f);
-            collectable.GetComponent<Collectable>().DeActivateThrowProperties();
-            if (CollectedObjs.Count > 0)
-            {
-                collectable.transform.position = new Vector3(CollectedObjs[CollectedObjs.Count - 1].transform.position.x, CollectedObjs[CollectedObjs.Count - 1].transform.position.y + (collectable.transform.localScale.y / 2), CollectedObjs[CollectedObjs.Count - 1].transform.position.z);
-            }
-            else
-            {
-                collectable.transform.position = CarryObject.transform.position;
-            }
-            cam.GetComponent<SmoothFollow>().targets.Add(collectable.transform);
-            CollectableCount++;
-            CollectedObjs.Add(collectable.gameObject);
-            collectable.transform.parent = CarryObject;
-            collectable.transform.localPosition = new Vector3(0, collectable.transform.localPosition.y, 0);
-            collectable.transform.localRotation = Quaternion.identity;
-        }
+        StartCoroutine(WaitAndCollect(collectable, 1));
     }
 
-    public GameObject catchAnimationUI;
     public void Collect2(GameObject collectable)
     {
+        StartCoroutine(WaitAndCollect(collectable, 0));
+    }
+
+    IEnumerator WaitAndCollect(GameObject collectable, float waitTime)
+    {
+        yield return new WaitForSeconds(waitTime);
         if (!CollectedObjs.Contains(collectable))
         {
             Destroy(Instantiate(PickUpParticle, collectable.transform.position, Quaternion.identity), 2f);
@@ -267,9 +284,13 @@ public class PlayerController : MonoBehaviour
             {
                 collectable.transform.localPosition = Vector3.zero;
             }
-            cam.GetComponent<SmoothFollow>().targets.Add(collectable.transform);
+
             CollectableCount++;
             CollectedObjs.Add(collectable.gameObject);
+            if (CollectedObjs.Count < 8)
+            {
+                cam.GetComponent<SmoothFollow>().targets.Add(collectable.transform);
+            }
 
             collectable.transform.localPosition = new Vector3(0, collectable.transform.localPosition.y, 0);
             collectable.transform.localRotation = Quaternion.identity;
@@ -309,7 +330,7 @@ public class PlayerController : MonoBehaviour
         CollectedObjs.Clear();
     }
 
-    public void LoadObjs()
+    public void LoadObjsWithTime()
     {
         foreach (GameObject item in CollectedObjs)
         {

@@ -91,7 +91,14 @@ public class SmoothFollow : MonoBehaviour
         var bounds = new Bounds(targets[0].position, Vector3.zero);
         for (int i = 0; i < targets.Count; i++)
         {
-            bounds.Encapsulate(targets[i].position);
+            if (i > 0)
+            {
+                bounds.Encapsulate(new Vector3(targets[0].position.x, targets[i].position.y, targets[i].position.z));
+            }
+            else
+            {
+                bounds.Encapsulate(targets[i].position);
+            }
         }
 
         return bounds.center;
