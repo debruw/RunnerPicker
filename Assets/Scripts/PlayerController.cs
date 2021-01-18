@@ -62,7 +62,7 @@ public class PlayerController : MonoBehaviour
                 {
                     CollectTutorial.SetActive(false);
                 }
-                StartCoroutine(ScaleTime(.05f, 1, 1));
+                StartCoroutine(ScaleTime(.15f, 1, 1));
                 GameManager.Instance.isInSlowMotion = false;
                 lineRenderer.positionCount = 1;
             }
@@ -107,7 +107,7 @@ public class PlayerController : MonoBehaviour
             if (CollectedObjs.Count > 0)
             {
                 ThrowCollectedObjs();
-                StartCoroutine(ScaleTime(1, .05f, 1));
+                StartCoroutine(ScaleTime(1, .15f, 1));
                 GameManager.Instance.isInSlowMotion = true;
             }
         }
@@ -142,11 +142,14 @@ public class PlayerController : MonoBehaviour
                     Debug.Log("jump");
                     m_rigidBody.AddForce(Vector3.up * m_jumpForce, ForceMode.Impulse);
                     m_animator.SetTrigger("Jump");
-                    JumpTutorialCanvas.SetActive(false);
+                    if (GameManager.Instance.currentLevel == 1)
+                    {
+                        JumpTutorialCanvas.SetActive(false);
+                    }
                     if (CollectedObjs.Count > 0)
                     {
                         ThrowCollectedObjs();                        
-                        StartCoroutine(ScaleTime(1, .05f, 1));                        
+                        StartCoroutine(ScaleTime(1, .15f, 1));                        
                         GameManager.Instance.isInSlowMotion = true;
                     }
                 }
@@ -319,6 +322,7 @@ public class PlayerController : MonoBehaviour
     public Vector3 ThrowForce;
     public void ThrowCollectedObjs()
     {
+        Debug.Log("Throw");
         for (int i = CollectedObjs.Count - 1; i >= 0; i--)
         {
             if (CollectedObjs[i] != null)
@@ -333,6 +337,7 @@ public class PlayerController : MonoBehaviour
 
     public void ThrowCollectedObjs2()
     {
+        Debug.Log("Throw2");
         for (int i = CollectedObjs.Count - 1; i >= 0; i--)
         {
             if (CollectedObjs[i] != null)
