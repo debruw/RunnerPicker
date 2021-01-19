@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Skybox_Horizontal Skybox
+  m_Name: SkyboxPurple
   m_Shader: {fileID: 4800000, guid: cfc70497f9539a746871aff271cb79d6, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -24,6 +24,6 @@ Material:
     - _Exponent2: 1
     - _Intensity: 1
     m_Colors:
-    - _Color1: {r: 0, g: 0.6507373, b: 1, a: 1}
-    - _Color2: {r: 0.8632076, g: 0.9573443, b: 1, a: 1}
-    - _Color3: {r: 0.6367924, g: 0.8866442, b: 1, a: 1}
+    - _Color1: {r: 0.8705883, g: 0.7058824, b: 0.9960785, a: 1}
+    - _Color2: {r: 0.9607844, g: 0.9058824, b: 1, a: 1}
+    - _Color3: {r: 0.8705883, g: 0.7058824, b: 0.9960785, a: 1}

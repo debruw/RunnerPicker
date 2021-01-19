@@ -1902,17 +1902,23 @@ MonoBehaviour:
   m_jumpForce: 7
   m_animator: {fileID: 9080247616897203427}
   m_rigidBody: {fileID: 5622908061047592958}
+  m_isGrounded: 0
+  isInNoJumpZone: 0
   Xspeed: 10
   CollectedObjs: []
   metarig: {fileID: 2449171728213172191}
   ragdollRigidbodies: []
   ragdollColliders: []
   cam: {fileID: 0}
+  JumpTutorialCanvas: {fileID: 0}
+  CollectTutorial: {fileID: 0}
   CarryObject: {fileID: 0}
   CollectableCount: 0
   PickUpParticle: {fileID: 7467451613774091826, guid: c27ced02e5d2e464ca765f65f0a09e54,
     type: 3}
   catchAnimationUI: {fileID: 8523276964590956594, guid: 5691c29f563590f4ea5c3ec1bd3f76f0,
+    type: 3}
+  catchAnimation3d: {fileID: 8032012173040697509, guid: c3b9751e7204c3944bdcd885ad50c58f,
     type: 3}
   ThrowForce: {x: 0, y: 9.81, z: 16.3}
   lineRenderer: {fileID: 0}

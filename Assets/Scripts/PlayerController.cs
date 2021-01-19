@@ -255,7 +255,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public GameObject catchAnimationUI;
+    public GameObject catchAnimation3d;
     public void Collect(GameObject collectable)
     {
         StartCoroutine(WaitAndCollect(collectable, 1));
@@ -277,7 +277,7 @@ public class PlayerController : MonoBehaviour
 
             if (waitTime == 1)
             {
-                Instantiate(catchAnimationUI, cam.WorldToScreenPoint(collectable.transform.position), Quaternion.identity, GameManager.Instance.canvas);
+                Instantiate(catchAnimation3d, collectable.transform.position, Quaternion.identity);
             }
 
             if (CollectedObjs.Count > 0)
