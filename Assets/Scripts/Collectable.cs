@@ -100,6 +100,7 @@ public class Collectable : MonoBehaviour
             {
                 SmoothFollow.Instance.targets.Remove(gameObject.transform); 
             }
+            SoundManager.Instance.playSound(SoundManager.GameSounds.Splash);
             Destroy(gameObject);
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using TapticPlugin;
 
 public class PlayerController : MonoBehaviour
 {
@@ -62,7 +63,7 @@ public class PlayerController : MonoBehaviour
                 {
                     CollectTutorial.SetActive(false);
                 }
-                StartCoroutine(ScaleTime(.15f, 1, 1));
+                StartCoroutine(ScaleTime(.3f, 1, 1));
                 GameManager.Instance.isInSlowMotion = false;
                 lineRenderer.positionCount = 1;
             }
@@ -107,7 +108,7 @@ public class PlayerController : MonoBehaviour
             if (CollectedObjs.Count > 0)
             {
                 ThrowCollectedObjs();
-                StartCoroutine(ScaleTime(1, .15f, 1));
+                StartCoroutine(ScaleTime(1, .3f, 1));
                 GameManager.Instance.isInSlowMotion = true;
             }
         }
@@ -149,7 +150,7 @@ public class PlayerController : MonoBehaviour
                     if (CollectedObjs.Count > 0)
                     {
                         ThrowCollectedObjs();                        
-                        StartCoroutine(ScaleTime(1, .15f, 1));                        
+                        StartCoroutine(ScaleTime(1, .3f, 1));                        
                         GameManager.Instance.isInSlowMotion = true;
                     }
                 }
@@ -211,6 +212,8 @@ public class PlayerController : MonoBehaviour
             GameManager.Instance.isGameStarted = false;
             m_moveSpeed = 0;
             m_animator.SetTrigger("Fall");
+            if (PlayerPrefs.GetInt("VIBRATION") == 1)
+                TapticManager.Impact(ImpactFeedback.Medium);
             StartCoroutine(GameManager.Instance.WaitAndGameLose());
         }
     }
@@ -227,6 +230,8 @@ public class PlayerController : MonoBehaviour
             GameManager.Instance.isGameStarted = false;
             m_moveSpeed = 0;
             m_animator.SetTrigger("Fall");
+            if (PlayerPrefs.GetInt("VIBRATION") == 1)
+                TapticManager.Impact(ImpactFeedback.Medium);
             StartCoroutine(GameManager.Instance.WaitAndGameLose());
         }
         else if (other.CompareTag("FinishLine"))
@@ -269,6 +274,9 @@ public class PlayerController : MonoBehaviour
     IEnumerator WaitAndCollect(GameObject collectable, float waitTime)
     {
         yield return new WaitForSeconds(waitTime);
+        if (PlayerPrefs.GetInt("VIBRATION") == 1)
+            TapticManager.Impact(ImpactFeedback.Light);
+        SoundManager.Instance.playSound(SoundManager.GameSounds.Collect);
         if (!CollectedObjs.Contains(collectable))
         {
             Destroy(Instantiate(PickUpParticle, collectable.transform.position, Quaternion.identity), 2f);

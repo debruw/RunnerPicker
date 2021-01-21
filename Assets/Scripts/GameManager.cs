@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using DG.Tweening;
+using TapticPlugin;
 
 public class GameManager : MonoBehaviour
 {
@@ -66,8 +67,8 @@ public class GameManager : MonoBehaviour
         Ship.transform.DORotate(new Vector3(0, -45, 0), 5);
         Ship.transform.DOMove(ShipTarget.position, 20);
         yield return new WaitForSeconds(1f);
-        //if (PlayerPrefs.GetInt("VIBRATION") == 1)
-        //TapticManager.Impact(ImpactFeedback.Light);
+        if (PlayerPrefs.GetInt("VIBRATION") == 1)
+            TapticManager.Impact(ImpactFeedback.Light);
         currentLevel++;
         PlayerPrefs.SetInt("LevelId", currentLevel);
         WinPanel.SetActive(true);
@@ -78,8 +79,8 @@ public class GameManager : MonoBehaviour
     {
         SoundManager.Instance.playSound(SoundManager.GameSounds.Lose);
         yield return new WaitForSeconds(.5f);
-        //if (PlayerPrefs.GetInt("VIBRATION") == 1)
-        //TapticManager.Impact(ImpactFeedback.Light);
+        if (PlayerPrefs.GetInt("VIBRATION") == 1)
+            TapticManager.Impact(ImpactFeedback.Light);
 
         LosePanel.SetActive(true);
         InGamePanel.SetActive(false);
@@ -124,8 +125,8 @@ public class GameManager : MonoBehaviour
             VibrationButton.GetComponent<Image>().sprite = on;
         }
 
-        //if (PlayerPrefs.GetInt("VIBRATION") == 1)
-        //TapticManager.Impact(ImpactFeedback.Light);
+        if (PlayerPrefs.GetInt("VIBRATION") == 1)
+            TapticManager.Impact(ImpactFeedback.Light);
     }
 
     public void TapToStartButtonClick()
