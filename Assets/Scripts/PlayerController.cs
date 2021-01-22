@@ -206,6 +206,16 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             m_isGrounded = true;
+            if (GameManager.Instance.isInSlowMotion)
+            {
+                if (GameManager.Instance.currentLevel == 1)
+                {
+                    CollectTutorial.SetActive(false);
+                }
+                StartCoroutine(ScaleTime(.3f, 1, 1));
+                GameManager.Instance.isInSlowMotion = false;
+                lineRenderer.positionCount = 1;
+            }
         }
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
