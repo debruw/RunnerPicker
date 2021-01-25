@@ -75,8 +75,13 @@ public class GameManager : MonoBehaviour
         InGamePanel.SetActive(false);
     }
 
+    public GameObject tutorialCanvases;
     public IEnumerator WaitAndGameLose()
     {
+        if (currentLevel == 1)
+        {
+            tutorialCanvases.SetActive(false);
+        }
         SoundManager.Instance.playSound(SoundManager.GameSounds.Lose);
         yield return new WaitForSeconds(.5f);
         if (PlayerPrefs.GetInt("VIBRATION") == 1)

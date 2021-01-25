@@ -51,6 +51,10 @@ public class PlayerController : MonoBehaviour
     {
         if (!GameManager.Instance.isGameStarted)
         {
+            if (Time.timeScale != 1)
+            {
+                Time.timeScale = 1;
+            }
             return;
         }
         transform.position += transform.forward * m_moveSpeed * Time.deltaTime;
@@ -321,6 +325,7 @@ public class PlayerController : MonoBehaviour
 
     public void ActivateRagdoll()
     {
+        transform.GetChild(2).gameObject.SetActive(false);
         m_animator.enabled = false;
         m_rigidBody.isKinematic = true;
         m_rigidBody.useGravity = false;
